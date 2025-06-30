@@ -9,7 +9,7 @@ pipeline {
     }
     
     environment {
-        IMAGE_NAME = "yogesh2024/bankapp"
+        IMAGE_NAME = "vsiraparapu/bankapp"
         TAG = "${params.DOCKER_TAG}"
         KUBE_NAMESPACE = 'webapps'
         // SCANNER_HOME = tool 'sonar-scanner'
@@ -17,11 +17,11 @@ pipeline {
 
     stages {
        
-        // stage('Compile') {
-        //     steps {
-        //         sh "mvn compile"
-        //     }
-        // }
+        stage('Compile') {
+            steps {
+                sh "mvn compile"
+            }
+        }
         
         stage('Tests') {
             steps {
@@ -39,7 +39,7 @@ pipeline {
         stage('Docker Build & tag image') {
             steps {
                 script{
-                    withDockerRegistry(credentialsId: 'docker-cred') {
+                    withDockerRegistry(credentialsId: 'venkat-docker-creds') {
                         sh "docker build -t ${IMAGE_NAME}:${TAG} ."
                     }
                 }
@@ -47,100 +47,98 @@ pipeline {
         }
         
         
-       
-        
         stage('Docker Push image') {
             steps {
                 script{
-                    withDockerRegistry(credentialsId: 'docker-cred') {
+                    withDockerRegistry(credentialsId: 'venkat-docker-creds') {
                         sh "docker push ${IMAGE_NAME}:${TAG}"
                     }
                 }
             }
         }
         
-        stage('Deploy MySQL Deployment and Service') {
-            steps {
-                script {
-                    withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
-                        sh "kubectl apply -f mysql-ds.yml -n ${KUBE_NAMESPACE}"
+        // stage('Deploy MySQL Deployment and Service') {
+        //     steps {
+        //         script {
+        //             withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
+        //                 sh "kubectl apply -f mysql-ds.yml -n ${KUBE_NAMESPACE}"
                         
-                    }
+        //             }
                     
-                }
+        //         }
                 
-            }
+        //     }
             
-        }
+        // }
         
         
         
-        stage('Deploy SVC app') {
-            steps {
-                script {
-                    withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
-                        sh """ if ! kubectl get svc bankapp-service -n ${KUBE_NAMESPACE}; then
-                                kubectl apply -f bankapp-service.yml -n ${KUBE_NAMESPACE}
-                              fi
-                        """
-                        }
-                    }
-                }
-            }
+        // stage('Deploy SVC app') {
+        //     steps {
+        //         script {
+        //             withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
+        //                 sh """ if ! kubectl get svc bankapp-service -n ${KUBE_NAMESPACE}; then
+        //                         kubectl apply -f bankapp-service.yml -n ${KUBE_NAMESPACE}
+        //                       fi
+        //                 """
+        //                 }
+        //             }
+        //         }
+        //     }
         
         
         
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    def deploymentFile = ""
-                    if (params.DEPLOY_ENV == 'blue') {
-                        deploymentFile = 'app-deployment-blue.yml'
-                    } else {
-                        deploymentFile = 'app-deployment-green.yml'
-                    }
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         script {
+        //             def deploymentFile = ""
+        //             if (params.DEPLOY_ENV == 'blue') {
+        //                 deploymentFile = 'app-deployment-blue.yml'
+        //             } else {
+        //                 deploymentFile = 'app-deployment-green.yml'
+        //             }
                     
-                    withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
-                        sh "kubectl apply -f ${deploymentFile} -n ${KUBE_NAMESPACE}"
+        //             withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
+        //                 sh "kubectl apply -f ${deploymentFile} -n ${KUBE_NAMESPACE}"
                         
-                    }
-                }
-            }
-        }
+        //             }
+        //         }
+        //     }
+        // }
         
         
-        stage('Switch Traffic Between Blue & Green Environment') {
-            when {
-                expression { return params.SWITCH_TRAFFIC }
-            }
-            steps {
-                script {
-                    def newEnv = params.DEPLOY_ENV
+        // stage('Switch Traffic Between Blue & Green Environment') {
+        //     when {
+        //         expression { return params.SWITCH_TRAFFIC }
+        //     }
+        //     steps {
+        //         script {
+        //             def newEnv = params.DEPLOY_ENV
 
-                    // Always switch traffic based on DEPLOY_ENV
-                    withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
-                        sh '''
-                            kubectl patch service bankapp-service -p "{\\"spec\\": {\\"selector\\": {\\"app\\": \\"bankapp\\", \\"version\\": \\"''' + newEnv + '''\\"}}}" -n ${KUBE_NAMESPACE}
-                        '''
-                    }
-                    echo "Traffic has been switched to the ${newEnv} environment."
-                }
-            }
-        }
+        //             // Always switch traffic based on DEPLOY_ENV
+        //             withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
+        //                 sh '''
+        //                     kubectl patch service bankapp-service -p "{\\"spec\\": {\\"selector\\": {\\"app\\": \\"bankapp\\", \\"version\\": \\"''' + newEnv + '''\\"}}}" -n ${KUBE_NAMESPACE}
+        //                 '''
+        //             }
+        //             echo "Traffic has been switched to the ${newEnv} environment."
+        //         }
+        //     }
+        // }
         
-        stage('Verify Deployment') {
-            steps {
-                script {
-                    def verifyEnv = params.DEPLOY_ENV
-                    withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
-                        sh """
-                        kubectl get pods -l version=${verifyEnv} -n ${KUBE_NAMESPACE}
-                        kubectl get svc bankapp-service -n ${KUBE_NAMESPACE}
-                        """
-                    }
-                }
-            }
-        }
+        // stage('Verify Deployment') {
+        //     steps {
+        //         script {
+        //             def verifyEnv = params.DEPLOY_ENV
+        //             withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
+        //                 sh """
+        //                 kubectl get pods -l version=${verifyEnv} -n ${KUBE_NAMESPACE}
+        //                 kubectl get svc bankapp-service -n ${KUBE_NAMESPACE}
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
         
      
     }
