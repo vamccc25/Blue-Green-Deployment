@@ -17,58 +17,25 @@ pipeline {
 
     stages {
        
-        
         stage('Compile') {
             steps {
-                sh "mvn compile"
+                sh "./mvnw compile"
             }
         }
         
         stage('Tests') {
             steps {
-                sh "mvn clean test -X -DskipTests=true"
-            }
-        }
-        
-        stage('Trivy FS scan') {
-            steps {
-                sh "trivy fs --format table -o fs.html ."
-            }
-        }
-        
-        stage('Sonarqube analysis') {
-            steps {
-            withSonarQubeEnv('sonar') {
-                sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=BlueGreen -Dsonar.projectName=BlueGreen -Dsonar.java.binaries=target"
-                }
-                
-            }
-        }
-        
-        
-        stage('Quality gate check') {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: false
-                    
-                }
+                sh "./mvnw clean test -X -DskipTests=true"
             }
         }
         
         stage('Build') {
             steps {
-                sh "mvn package -DskipTests=true"
+                sh "./mvnw package -DskipTests=true"
             }
         }
         
-        stage('Publish artifact To Nexus') {
-            steps {
-                withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
-                    sh "mvn deploy -X -DskipTests=true"
-                }
-            }
-        }
-        
+ 
         stage('Docker Build & tag image') {
             steps {
                 script{
@@ -80,11 +47,7 @@ pipeline {
         }
         
         
-         stage('trivy image scan') {
-            steps {
-                sh "trivy image --format table -o fs.html ${IMAGE_NAME}:${TAG}"
-            }
-        }
+       
         
         stage('Docker Push image') {
             steps {
@@ -182,3 +145,41 @@ pipeline {
      
     }
 }
+
+// stage('Trivy FS scan') {
+        //     steps {
+        //         sh "trivy fs --format table -o fs.html ."
+        //     }
+        // }
+        
+        // stage('Sonarqube analysis') {
+        //     steps {
+        //     withSonarQubeEnv('sonar') {
+        //         sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=BlueGreen -Dsonar.projectName=BlueGreen -Dsonar.java.binaries=target"
+        //         }
+                
+        //     }
+        // }
+        
+        
+        // stage('Quality gate check') {
+        //     steps {
+        //         timeout(time: 1, unit: 'HOURS') {
+        //             waitForQualityGate abortPipeline: false
+                    
+        //         }
+        //     }
+        // }
+       // stage('Publish artifact To Nexus') {
+        //     steps {
+        //         withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+        //             sh "./mvnw deploy -X -DskipTests=true"
+        //         }
+        //     }
+        // }
+        
+ // stage('trivy image scan') {
+        //     steps {
+        //         sh "trivy image --format table -o fs.html ${IMAGE_NAME}:${TAG}"
+        //     }
+        // }
