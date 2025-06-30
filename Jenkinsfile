@@ -16,6 +16,12 @@ pipeline {
     }
 
     stages {
+
+        stage('SetPermissions') {
+            steps {
+                sh "chmod -R 777 mvnw"
+            }
+        }
        
         stage('Compile') {
             steps {
