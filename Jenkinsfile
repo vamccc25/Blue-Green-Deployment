@@ -25,19 +25,19 @@ pipeline {
        
         stage('Compile') {
             steps {
-                sh "./mvnw compile"
+                sh "mvn compile"
             }
         }
         
         stage('Tests') {
             steps {
-                sh "./mvnw clean test -X -DskipTests=true"
+                sh "mvn clean test -X -DskipTests=true"
             }
         }
         
         stage('Build') {
             steps {
-                sh "./mvnw package -DskipTests=true"
+                sh "mvn package -DskipTests=true"
             }
         }
         
