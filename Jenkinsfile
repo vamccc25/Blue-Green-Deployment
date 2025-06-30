@@ -1,9 +1,9 @@
 pipeline {
     agent any
     
-    tools {
-        maven 'maven3'
-    }
+    // tools {
+    //     maven 'maven3'
+    // }
     
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['blue', 'green'], description: 'Choose which environment to deploy: Blue or Green')
@@ -19,11 +19,11 @@ pipeline {
     }
 
     stages {
-        stage('Git Checkout') {
-            steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/iam-yogeshreddy/Blue-Green-Deployment.git'
-            }
-        }
+        // stage('Git Checkout') {
+        //     steps {
+        //         git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/iam-yogeshreddy/Blue-Green-Deployment.git'
+        //     }
+        // }
         
         stage('Compile') {
             steps {
