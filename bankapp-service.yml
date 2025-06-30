@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: bankapp-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port: 80
     targetPort: 8080
+    nodePort: 30080
   selector:
     app: bankapp
     version: blue # This can be changed to "green" when switching traffic
