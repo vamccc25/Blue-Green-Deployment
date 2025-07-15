@@ -110,7 +110,7 @@ pipeline {
                         deploymentFile = 'app-deployment-green.yml'
                     }
                     
-                    withKubeConfig(vamsi-kubect-config-creds) {
+                    withKubeConfig(credentialsId: 'vamsi-kubect-config-creds') {
                         sh "kubectl apply -f ${deploymentFile} "
                         
                     }
