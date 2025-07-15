@@ -9,7 +9,7 @@ pipeline {
     }
     
     environment {
-        IMAGE_NAME = "vsiraparapu/bankapp"
+        IMAGE_NAME = "vamc25/bankapp"
         TAG = "${params.DOCKER_TAG}"
         KUBE_NAMESPACE = 'webapps'
         // SCANNER_HOME = tool 'sonar-scanner'
@@ -25,7 +25,7 @@ pipeline {
        
         stage('Compile') {
             steps {
-                sh "./mvnw compile"
+                sh "mvn compile"
             }
         }
         
@@ -42,34 +42,34 @@ pipeline {
         }
         
  
-        stage('Docker Build & tag image') {
-            steps {
-                script{
-                    withDockerRegistry(credentialsId: 'venkat-docker-creds') {
-                        sh "docker build -t ${IMAGE_NAME}:${TAG} ."
-                    }
-                }
-            }
-        }
+        // stage('Docker Build & tag image') {
+        //     steps {
+        //         script{
+        //             withDockerRegistry(credentialsId: 'venkat-docker-creds') {
+        //                 sh "docker build -t ${IMAGE_NAME}:${TAG} ."
+        //             }
+        //         }
+        //     }
+        // }
         
         
-        stage('Docker Push image') {
-            steps {
-                script{
-                    withDockerRegistry(credentialsId: 'venkat-docker-creds') {
-                        sh "docker push ${IMAGE_NAME}:${TAG}"
-                    }
-                }
-            }
-        }
+        // stage('Docker Push image') {
+        //     steps {
+        //         script{
+        //             withDockerRegistry(credentialsId: 'venkat-docker-creds') {
+        //                 sh "docker push ${IMAGE_NAME}:${TAG}"
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Deploy MySQL to Local K8s') {
-            steps {
-                withKubeConfig(credentialsId: 'venkat-kubect-config-creds') {
-                    sh 'kubectl apply -f mysql-ds.yml'
-                }
-            }
-        }
+        // stage('Deploy MySQL to Local K8s') {
+        //     steps {
+        //         withKubeConfig(credentialsId: 'venkat-kubect-config-creds') {
+        //             sh 'kubectl apply -f mysql-ds.yml'
+        //         }
+        //     }
+        // }
 
         
         // stage('Deploy MySQL Deployment and Service') {
