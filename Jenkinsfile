@@ -65,7 +65,7 @@ pipeline {
 
         stage('Deploy MySQL to Local K8s') {
             steps {
-                withKubeConfig(credentialsId: 'venkat-kubect-config-creds') {
+                withKubeConfig(credentialsId: 'vamsi-kubect-config-creds') {
                     sh 'kubectl apply -f mysql-ds.yml'
                 }
             }
