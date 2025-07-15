@@ -76,7 +76,7 @@ pipeline {
             steps {
                 script {
                     withKubeConfig(credentialsId: 'vamsi-kubect-config-creds') {
-                        sh "kubectl apply -f mysql-ds.yml -n ${KUBE_NAMESPACE}"
+                        sh "kubectl apply -f mysql-ds.yml "
                         
                     }
                     
