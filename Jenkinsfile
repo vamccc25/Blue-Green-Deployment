@@ -42,26 +42,26 @@ pipeline {
         }
         
  
-        // stage('Docker Build & tag image') {
-        //     steps {
-        //         script{
-        //             withDockerRegistry(credentialsId: 'venkat-docker-creds') {
-        //                 sh "docker build -t ${IMAGE_NAME}:${TAG} ."
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Docker Build & tag image') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'vamsi-docker-creds') {
+                        sh "docker build -t ${IMAGE_NAME}:${TAG} ."
+                    }
+                }
+            }
+        }
         
         
-        // stage('Docker Push image') {
-        //     steps {
-        //         script{
-        //             withDockerRegistry(credentialsId: 'venkat-docker-creds') {
-        //                 sh "docker push ${IMAGE_NAME}:${TAG}"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Docker Push image') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'vamsi-docker-creds') {
+                        sh "docker push ${IMAGE_NAME}:${TAG}"
+                    }
+                }
+            }
+        }
 
         // stage('Deploy MySQL to Local K8s') {
         //     steps {
