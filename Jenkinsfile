@@ -63,28 +63,28 @@ pipeline {
             }
         }
 
-        // stage('Deploy MySQL to Local K8s') {
-        //     steps {
-        //         withKubeConfig(credentialsId: 'venkat-kubect-config-creds') {
-        //             sh 'kubectl apply -f mysql-ds.yml'
-        //         }
-        //     }
-        // }
+        stage('Deploy MySQL to Local K8s') {
+            steps {
+                withKubeConfig(credentialsId: 'venkat-kubect-config-creds') {
+                    sh 'kubectl apply -f mysql-ds.yml'
+                }
+            }
+        }
 
         
-        // stage('Deploy MySQL Deployment and Service') {
-        //     steps {
-        //         script {
-        //             withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
-        //                 sh "kubectl apply -f mysql-ds.yml -n ${KUBE_NAMESPACE}"
+        stage('Deploy MySQL Deployment and Service') {
+            steps {
+                script {
+                    withKubeConfig(caCertificate: '', clusterName: 'yogesh-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://35511BC37C08D2DA0E7A158A8AAD411F.gr7.ap-south-1.eks.amazonaws.com') {
+                        sh "kubectl apply -f mysql-ds.yml -n ${KUBE_NAMESPACE}"
                         
-        //             }
+                    }
                     
-        //         }
+                }
                 
-        //     }
+            }
             
-        // }
+        }
         
         
         
